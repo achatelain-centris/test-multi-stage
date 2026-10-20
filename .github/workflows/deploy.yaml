@@ -1,0 +1,47 @@
+
+on:
+  workflow_dispatch:
+
+jobs:
+  tst1:
+    runs-on: ubuntu-latest
+    environment: test
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Deploy
+        run: echo "Deploying application..."
+
+  tst2:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Deploy
+        run: echo "Deploying application..."
+
+  tst3:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Deploy
+        run: echo "Deploying application..."
+
+  stg:
+    runs-on: ubuntu-latest
+    environment: prod
+    needs:
+      - tst1
+      - tst2
+      - tst3
+    if: success()
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Deploy
+        run: echo "Deploying application..."
