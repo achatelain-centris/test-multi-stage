@@ -13,8 +13,20 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
+      # GitHub prevents events generated with GITHUB_TOKEN—including release: published—from triggering other workflows, to avoid recursive runs. See GitHub’s documentation.
+      # Create the release with a GitHub App token or PAT instead. Then release: published can trigger deployment naturally, without an explicit dispatch
+      - name: Generate GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v3
+        with:
+          client-id: ${{ vars.APP_CLIENT_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          permission-contents: write
+
       - name: Checkout repository
         uses: actions/checkout@v7
+        with:
+          token: ${{ steps.app-token.outputs.token }}
 
       - name: Release
         run: |
@@ -26,5 +38,4 @@ jobs:
           gh release create "v${{ github.event.inputs.version }}" .github/workflows/* --verify-tag --title "v${{ github.event.inputs.version }}" --notes "Release version ${{ github.event.inputs.version }}"
           echo "Released version ${{ github.event.inputs.version }}"
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
